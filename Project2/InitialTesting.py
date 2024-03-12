@@ -23,8 +23,11 @@ committee_predictions = np.array([model.predict(X_test) for model in committee])
 
 # Calculate the disagreement among the committee members
 def disagreement(predictions):
-    # Example disagreement metric: standard deviation of predictions
-    return np.std(predictions, axis=0)
+    # Convert predictions to floats
+    predictions_float = np.array(predictions, dtype=float)
+    # Calculate the disagreement metric (e.g., standard deviation)
+    return np.std(predictions_float, axis=0)
+
 
 # Calculate the disagreement for the committee
 committee_disagreement = disagreement(committee_predictions)
