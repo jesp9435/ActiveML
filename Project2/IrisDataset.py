@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mpl
+import modAL
 from copy import deepcopy
 from sklearn import datasets
 from sklearn.ensemble import RandomForestClassifier
@@ -8,8 +9,9 @@ from modAL.models import ActiveLearner, Committee
 from sklearn.decomposition import PCA
 
 # Load the data set
-iris = datasets.load_iris()
+iris = datasets.load_iris() 
 
+"""
 # Visualizing the data
 _, ax = plt.subplots()
 scatter = ax.scatter(iris.data[:, 0], iris.data[:, 1], c=iris.target)
@@ -18,6 +20,7 @@ _ = ax.legend(
     scatter.legend_elements()[0], iris.target_names, loc="lower right", title="Classes"
 )
 plt.show()
+"""
 
 """ # Maybe just delete? 
 # visualizing the classes
@@ -60,7 +63,7 @@ for member_idx in range(n_members):
 # assembling the committee
 committee = Committee(learner_list=learner_list)
 
-# 
+# Visualizing how the models predict after inital training
 with plt.style.context('seaborn-v0_8-white'):
     plt.figure(figsize=(n_members*7, 7))
     for learner_idx, learner in enumerate(committee):
@@ -69,8 +72,10 @@ with plt.style.context('seaborn-v0_8-white'):
         plt.title('Learner no. %d initial predictions' % (learner_idx + 1))
     plt.show()
 
+# Calculating the mean accuracy of the committee so far
 unqueried_score = committee.score(iris['data'], iris['target'])
 
+# Visualizing how the committee predict given inital training
 with plt.style.context('seaborn-v0_8-white'):
     plt.figure(figsize=(7, 7))
     prediction = committee.predict(iris['data'])
@@ -78,22 +83,25 @@ with plt.style.context('seaborn-v0_8-white'):
     plt.title('Committee initial predictions, accuracy = %1.3f' % unqueried_score)
     plt.show()
 
+# Create a list to store committee accuracy/performance over time
 performance_history = [unqueried_score]
 
-# query by committee
-n_queries = 20
+# Query by committee 
+n_queries = 20 # Number of queries in total 
 for idx in range(n_queries):
-    query_idx, query_instance = committee.query(X_pool)
-    committee.teach(
-        X=X_pool[query_idx].reshape(1, -1),
-        y=y_pool[query_idx].reshape(1, )
-    )
+    for n in range(5): # Query 5 data points at a time
+        query_idx, query_instance = committee.query(X_pool) # CHANGE QUERY METHOD
+        committee.teach(
+            X=X_pool[query_idx].reshape(1, -1),
+            y=y_pool[query_idx].reshape(1, )
+        )
+    # Calculate performance after query and add to performance history
     performance_history.append(committee.score(iris['data'], iris['target']))
-    # remove queried instance from pool
+    # Remove queried instance from pool
     X_pool = np.delete(X_pool, query_idx, axis=0)
     y_pool = np.delete(y_pool, query_idx)
 
-# visualizing the final predictions per learner
+# Visualizing the final predictions per learner
 with plt.style.context('seaborn-v0_8-white'):
     plt.figure(figsize=(n_members*7, 7))
     for learner_idx, learner in enumerate(committee):
@@ -102,7 +110,7 @@ with plt.style.context('seaborn-v0_8-white'):
         plt.title('Learner no. %d predictions after %d queries' % (learner_idx + 1, n_queries))
     plt.show()
 
-# visualizing the Committee's predictions
+# Visualizing the Committee's predictions
 with plt.style.context('seaborn-v0_8-white'):
     plt.figure(figsize=(7, 7))
     prediction = committee.predict(iris['data'])
@@ -130,3 +138,4 @@ ax.set_ylabel('Classification Accuracy')
 
 plt.show()
 
+modAL.disagreement.vote_entropy()
