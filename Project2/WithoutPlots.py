@@ -10,27 +10,8 @@ from sklearn.decomposition import PCA
 
 # Load the data set
 iris = datasets.load_iris() 
+np.random.seed(32)
 
-"""
-# Visualizing the data
-_, ax = plt.subplots()
-scatter = ax.scatter(iris.data[:, 0], iris.data[:, 1], c=iris.target)
-ax.set(xlabel=iris.feature_names[0], ylabel=iris.feature_names[1])
-_ = ax.legend(
-    scatter.legend_elements()[0], iris.target_names, loc="lower right", title="Classes"
-)
-plt.show()
-"""
-
-""" # Maybe just delete? 
-# visualizing the classes
-with plt.style.context('seaborn-v0_8-white'):
-    plt.figure(figsize=(7, 7))
-    pca = PCA(n_components=2).fit_transform(iris['data'])
-    plt.scatter(x=pca[:, 0], y=pca[:, 1], c=iris['target'], cmap='viridis', s=50)
-    plt.title('The iris dataset')
-    plt.show()
-""" 
 pca = PCA(n_components=2).fit_transform(iris['data']) #why is n_components 2?
 
 # generate the pool
@@ -43,6 +24,9 @@ y_pool = deepcopy(iris['target']) # label
 # A way to calculate vote entropy?:
 #modAL.disagreement.vote_entropy()
 #############################################
+
+# committee = Committee(learner_list=ActiveLearner)
+
 
 def KLD(X_pool, committee):
     # Calculate the predictions of the committee members
@@ -60,6 +44,7 @@ def KLD(X_pool, committee):
 
 query_members_performance_history = []
 
+    
 for n in [5]: #[5, 10, 15] 
     # initializing Committee members
     n_members = n
@@ -86,30 +71,10 @@ for n in [5]: #[5, 10, 15]
 
     # assembling the committee
     committee = Committee(learner_list=learner_list)
-
-    """
-    # Visualizing how the models predict after inital training
-    with plt.style.context('seaborn-v0_8-white'):
-        plt.figure(figsize=(n_members*7, 7))
-        for learner_idx, learner in enumerate(committee):
-            plt.subplot(1, n_members, learner_idx + 1)
-            plt.scatter(x=pca[:, 0], y=pca[:, 1], c=learner.predict(iris['data']), cmap='viridis', s=50)
-            plt.title('Learner no. %d initial predictions' % (learner_idx + 1))
-        plt.show()
-    """
+    
 
     # Calculating the mean accuracy of the committee so far
     unqueried_score = committee.score(iris['data'], iris['target'])
-
-    """
-    # Visualizing how the committee predict given inital training
-    with plt.style.context('seaborn-v0_8-white'):
-        plt.figure(figsize=(7, 7))
-        prediction = committee.predict(iris['data'])
-        plt.scatter(x=pca[:, 0], y=pca[:, 1], c=prediction, cmap='viridis', s=50)
-        plt.title('Committee initial predictions, accuracy = %1.3f' % unqueried_score)
-        plt.show()
-    """
 
     # Create a list to store committee accuracy/performance over time
     performance_history = [unqueried_score]
@@ -136,27 +101,6 @@ for n in [5]: #[5, 10, 15]
         
     query_members_performance_history.append(performance_history)
 
-
-
-    """
-    # Visualizing the final predictions per learner
-    with plt.style.context('seaborn-v0_8-white'):
-        plt.figure(figsize=(n_members*7, 7))
-        for learner_idx, learner in enumerate(committee):
-            plt.subplot(1, n_members, learner_idx + 1)
-            plt.scatter(x=pca[:, 0], y=pca[:, 1], c=learner.predict(iris['data']), cmap='viridis', s=50)
-            plt.title('Learner no. %d predictions after %d queries' % (learner_idx + 1, n_queries))
-        plt.show()
-
-    # Visualizing the Committee's predictions
-    with plt.style.context('seaborn-v0_8-white'):
-        plt.figure(figsize=(7, 7))
-        prediction = committee.predict(iris['data'])
-        plt.scatter(x=pca[:, 0], y=pca[:, 1], c=prediction, cmap='viridis', s=50)
-        plt.title('Committee predictions after %d queries, accuracy = %1.3f'
-                % (n_queries, committee.score(iris['data'], iris['target'])))
-        plt.show()
-    """
 
 
 
