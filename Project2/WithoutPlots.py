@@ -18,8 +18,6 @@ pca = PCA(n_components=2).fit_transform(iris['data']) #why is n_components 2?
 X_pool = deepcopy(iris['data'])
 y_pool = deepcopy(iris['target']) # label
 
-
-
 #############################################
 # A way to calculate vote entropy?:
 #modAL.disagreement.vote_entropy()
@@ -27,11 +25,20 @@ y_pool = deepcopy(iris['target']) # label
 
 # committee = Committee(learner_list=ActiveLearner)
 
+# def 1
+def vote_entropy(predictions):
+    # Calculate the vote proportions for each class
+    vote_proportions = np.mean(predictions > 0.5, axis=0)
 
-def KLD(X_pool, committee):
-    # Calculate the predictions of the committee members
-    predictions = committee.predict_proba(X_pool)
+    # Calculate the vote entropy for each data point
+    vote_entropy = entropy(vote_proportions.T + 1e-10, base=2, axis=1)
 
+    # Select the data point with the maximum vote entropy
+    query_idx = np.argmax(vote_entropy)
+    return query_idx 
+
+# def 2
+def KLD(predictions):
     # Calculate the consensus (mean) prediction
     consensus_prediction = predictions.mean(axis=0)
 
@@ -42,67 +49,88 @@ def KLD(X_pool, committee):
     query_idx = np.argmax(KL_divergence)
     return query_idx 
 
-query_members_performance_history = []
+# def 3
+def consensus_disagreement(predictions):
+    # Calculate the consensus (mean) prediction
+    consensus_prediction = predictions.mean(axis=0)
 
-    
-for n in [5]: #[5, 10, 15] 
-    # initializing Committee members
-    n_members = n
-    learner_list = list()
+    # Calculate the consensus disagreement for each data point
+    consensus_disagreement = -np.abs(0.5 - consensus_prediction[:, 0])
 
-    # Loop over members of the committee
-    for member_idx in range(n_members):
-        # initial training data
-        n_initial = 2 # number of random data points for inital training
-        train_idx = np.random.choice(range(X_pool.shape[0]), size=n_initial, replace=False)
-        X_train = X_pool[train_idx]
-        y_train = y_pool[train_idx]
+    # Select the data point with the maximum consensus disagreement
+    query_idx = np.argmax(consensus_disagreement)
+    return query_idx 
 
-        # creating a reduced copy of the data with the known instances removed
-        X_pool = np.delete(X_pool, train_idx, axis=0)
-        y_pool = np.delete(y_pool, train_idx)
 
-        # initializing learner
-        learner = ActiveLearner(
-            estimator=RandomForestClassifier(),
-            X_training=X_train, y_training=y_train
-        )
-        learner_list.append(learner)
 
-    # assembling the committee
-    committee = Committee(learner_list=learner_list)
-    
+method_performances = []
 
-    # Calculating the mean accuracy of the committee so far
-    unqueried_score = committee.score(iris['data'], iris['target'])
 
-    # Create a list to store committee accuracy/performance over time
-    performance_history = [unqueried_score]
+for i in [1]: #range(2) #loop through our 3 methods
+    query_members_performance_history = []
+    for n in [5]: #[5, 10, 15] 
+        # initializing Committee members
+        n_members = n
+        learner_list = list()
 
-    # Query by committee 
-    n_queries = 25 # Number of queries in total (so we end up using 127/150 data points)
-    for idx in range(n_queries):
-        for n in range(5): # Query 5 data points at a time
-            
-            query_idx = KLD(X_pool, committee)
+        # Loop over members of the committee
+        for member_idx in range(n_members):
+            # initial training data
+            n_initial = 2 # number of random data points for inital training
+            train_idx = np.random.choice(range(X_pool.shape[0]), size=n_initial, replace=False)
+            X_train = X_pool[train_idx]
+            y_train = y_pool[train_idx]
 
-            #query_idx, query_instance = committee.query(X_pool) 
-            committee.teach(
-                X=X_pool[query_idx].reshape(1, -1),
-                y=y_pool[query_idx].reshape(1, )
+            # creating a reduced copy of the data with the known instances removed
+            X_pool = np.delete(X_pool, train_idx, axis=0)
+            y_pool = np.delete(y_pool, train_idx)
+
+            # initializing learner
+            learner = ActiveLearner(
+                estimator=RandomForestClassifier(),
+                X_training=X_train, y_training=y_train
             )
+            learner_list.append(learner)
 
-            # Remove queried instance from pool
-            X_pool = np.delete(X_pool, query_idx, axis=0)
-            y_pool = np.delete(y_pool, query_idx)
-
-        # Calculate performance after query and add to performance history
-        performance_history.append(committee.score(iris['data'], iris['target']))
+        # assembling the committee
+        committee = Committee(learner_list=learner_list)
         
-    query_members_performance_history.append(performance_history)
+        # Calculating the mean accuracy of the committee so far
+        unqueried_score = committee.score(iris['data'], iris['target'])
 
+        # Create a list to store committee accuracy/performance over time
+        performance_history = [unqueried_score]
 
+        # Query by committee 
+        n_queries = 25 # Number of queries in total (so we end up using 127/150 data points)
+        for idx in range(n_queries):
+            for n in range(5): # Query 5 data points at a time
+                # Calculate the predictions of the committee members
+                predictions = committee.predict_proba(X_pool)
 
+                if i == 0:
+                    query_idx = vote_entropy(predictions)
+                elif i == 1:
+                    query_idx = KLD(predictions)
+                else:
+                    query_idx = consensus_disagreement(predictions)
+
+                #query_idx, query_instance = committee.query(X_pool) 
+                committee.teach(
+                    X=X_pool[query_idx].reshape(1, -1),
+                    y=y_pool[query_idx].reshape(1, )
+                )
+
+                # Remove queried instance from pool
+                X_pool = np.delete(X_pool, query_idx, axis=0)
+                y_pool = np.delete(y_pool, query_idx)
+
+            # Calculate performance after query and add to performance history
+            performance_history.append(committee.score(iris['data'], iris['target']))
+            
+        query_members_performance_history.append(performance_history)
+    
+    method_performances.append(query_members_performance_history)
 
 # Plot our performance over time. ########## FIX TO LOOK LIKE EXAMPLE REPORT ###########
 fig, ax = plt.subplots(figsize=(8.5, 6), dpi=130)
@@ -123,3 +151,10 @@ ax.set_ylabel('Classification Accuracy')
 
 plt.show()
 
+
+## plot
+plt.plot(range(len(method_performances[0][0])), method_performances[0][0], label = "Vote entropy 5 members" , color = "red")
+plt.plot(range(len(method_performances[0][1])), method_performances[0][1], label = "Vote entropy 10 members" , color = "blue")
+plt.plot(range(len(method_performances[0][2])), method_performances[0][2], label = "Vote entropy 15 members" , color = "green")
+plt.legend()
+plt.show()
