@@ -6,18 +6,20 @@ from sklearn import datasets
 from sklearn.ensemble import RandomForestClassifier
 from modAL.models import ActiveLearner, Committee
 from sklearn.decomposition import PCA
-import seaborn
 
+# Load the data set
 iris = datasets.load_iris()
 
+# Visualizing the data
 _, ax = plt.subplots()
 scatter = ax.scatter(iris.data[:, 0], iris.data[:, 1], c=iris.target)
 ax.set(xlabel=iris.feature_names[0], ylabel=iris.feature_names[1])
 _ = ax.legend(
     scatter.legend_elements()[0], iris.target_names, loc="lower right", title="Classes"
 )
-#plt.show()
+plt.show()
 
+""" # Maybe just delete? 
 # visualizing the classes
 with plt.style.context('seaborn-v0_8-white'):
     plt.figure(figsize=(7, 7))
@@ -25,18 +27,21 @@ with plt.style.context('seaborn-v0_8-white'):
     plt.scatter(x=pca[:, 0], y=pca[:, 1], c=iris['target'], cmap='viridis', s=50)
     plt.title('The iris dataset')
     plt.show()
+""" 
+pca = PCA(n_components=2).fit_transform(iris['data'])
 
 # generate the pool
 X_pool = deepcopy(iris['data'])
-y_pool = deepcopy(iris['target'])
+y_pool = deepcopy(iris['target']) # label
 
-# initializing Committee members
+# initializing Committee members (5, 10, 15)
 n_members = 5
 learner_list = list()
 
+# Loop over members of the committee
 for member_idx in range(n_members):
     # initial training data
-    n_initial = 2
+    n_initial = 2 # number of random data points for inital training
     train_idx = np.random.choice(range(X_pool.shape[0]), size=n_initial, replace=False)
     X_train = X_pool[train_idx]
     y_train = y_pool[train_idx]
@@ -55,6 +60,7 @@ for member_idx in range(n_members):
 # assembling the committee
 committee = Committee(learner_list=learner_list)
 
+# 
 with plt.style.context('seaborn-v0_8-white'):
     plt.figure(figsize=(n_members*7, 7))
     for learner_idx, learner in enumerate(committee):
