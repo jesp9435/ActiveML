@@ -10,6 +10,7 @@ from sklearn.decomposition import PCA
 
 # Load the data set
 iris = datasets.load_iris() 
+np.random.seed(32)
 
 """
 # Visualizing the data
@@ -44,6 +45,9 @@ y_pool = deepcopy(iris['target']) # label
 #modAL.disagreement.vote_entropy()
 #############################################
 
+# committee = Committee(learner_list=ActiveLearner)
+
+
 def KLD(X_pool, committee):
     # Calculate the predictions of the committee members
     predictions = committee.predict_proba(X_pool)
@@ -60,6 +64,7 @@ def KLD(X_pool, committee):
 
 query_members_performance_history = []
 
+    
 for n in [5]: #[5, 10, 15] 
     # initializing Committee members
     n_members = n
@@ -86,7 +91,7 @@ for n in [5]: #[5, 10, 15]
 
     # assembling the committee
     committee = Committee(learner_list=learner_list)
-
+    
     """
     # Visualizing how the models predict after inital training
     with plt.style.context('seaborn-v0_8-white'):
