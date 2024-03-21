@@ -18,12 +18,7 @@ pca = PCA(n_components=2).fit_transform(iris['data']) #why is n_components 2?
 X_pool = deepcopy(iris['data'])
 y_pool = deepcopy(iris['target']) # label
 
-#############################################
-# A way to calculate vote entropy?:
-#modAL.disagreement.vote_entropy()
-#############################################
 
-# committee = Committee(learner_list=ActiveLearner)
 
 # def 1
 def vote_entropy(predictions):
@@ -66,9 +61,9 @@ def consensus_disagreement(predictions):
 method_performances = []
 
 
-for i in [1]: #range(2) #loop through our 3 methods
+for i in range(2): #loop through our 3 methods
     query_members_performance_history = []
-    for n in [5]: #[5, 10, 15] 
+    for n in [5]: #[5, 10, 15]                           ################### remember to change this ############################
         # initializing Committee members
         n_members = n
         learner_list = list()
