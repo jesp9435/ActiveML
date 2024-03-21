@@ -7,6 +7,9 @@ from sklearn import datasets
 from sklearn.ensemble import RandomForestClassifier
 from modAL.models import ActiveLearner, Committee
 from sklearn.decomposition import PCA
+import random
+import matplotlib.pyplot as plt
+
 
 # Load the data set
 iris = datasets.load_iris() 
@@ -56,100 +59,98 @@ def consensus_disagreement(predictions):
     query_idx = np.argmax(consensus_disagreement)
     return query_idx 
 
+def baseline(X_pool):
+    query_idx = random.randint(0, len(X_pool))
+    return query_idx
 
 
-method_performances = []
+
+# Initialize lists for storing accuracies for different committee sizes
+members5_acc = [] # on the form [[vote_entropy_acc, KLD_acc, cons_acc, baseline_acc], [...]]
+members10_acc = []
+members15_acc = []
 
 
-for i in range(2): #loop through our 3 methods
-    query_members_performance_history = []
-    for n in [5]: #[5, 10, 15]                           ################### remember to change this ############################
-        # initializing Committee members
-        n_members = n
-        learner_list = list()
+#repeat the whole experiment 10 time to achieve confidence intervals
+for repetition in range(10): 
+    # loop through the number of committee members
+    for n in [5, 10, 15]:
+        # Create a list to store accuracies within each method
+        member_acc_across_methods = [] # on the form [vote_entropy_acc, KLD_acc, cons_acc, baseline_acc]
+        #loop through our 3 methods and the baseline   
+        for i in range(3):                        
+            # initializing Committee members
+            n_members = n
+            learner_list = list()
 
-        # Loop over members of the committee
-        for member_idx in range(n_members):
-            # initial training data
-            n_initial = 2 # number of random data points for inital training
-            train_idx = np.random.choice(range(X_pool.shape[0]), size=n_initial, replace=False)
-            X_train = X_pool[train_idx]
-            y_train = y_pool[train_idx]
+            # Loop over members of the committee
+            for member_idx in range(n_members):
+                # initial training data
+                n_initial = 2 # number of random data points for inital training
+                train_idx = np.random.choice(range(X_pool.shape[0]), size=n_initial, replace=False)
+                X_train = X_pool[train_idx]
+                y_train = y_pool[train_idx]
 
-            # creating a reduced copy of the data with the known instances removed
-            X_pool = np.delete(X_pool, train_idx, axis=0)
-            y_pool = np.delete(y_pool, train_idx)
+                # creating a reduced copy of the data with the known instances removed
+                X_pool = np.delete(X_pool, train_idx, axis=0)
+                y_pool = np.delete(y_pool, train_idx)
 
-            # initializing learner
-            learner = ActiveLearner(
-                estimator=RandomForestClassifier(),
-                X_training=X_train, y_training=y_train
-            )
-            learner_list.append(learner)
-
-        # assembling the committee
-        committee = Committee(learner_list=learner_list)
-        
-        # Calculating the mean accuracy of the committee so far
-        unqueried_score = committee.score(iris['data'], iris['target'])
-
-        # Create a list to store committee accuracy/performance over time
-        performance_history = [unqueried_score]
-
-        # Query by committee 
-        n_queries = 25 # Number of queries in total (so we end up using 127/150 data points)
-        for idx in range(n_queries):
-            for n in range(5): # Query 5 data points at a time
-                # Calculate the predictions of the committee members
-                predictions = committee.predict_proba(X_pool)
-
-                if i == 0:
-                    query_idx = vote_entropy(predictions)
-                elif i == 1:
-                    query_idx = KLD(predictions)
-                else:
-                    query_idx = consensus_disagreement(predictions)
-
-                #query_idx, query_instance = committee.query(X_pool) 
-                committee.teach(
-                    X=X_pool[query_idx].reshape(1, -1),
-                    y=y_pool[query_idx].reshape(1, )
+                # initializing learner
+                learner = ActiveLearner(
+                    estimator=RandomForestClassifier(),
+                    X_training=X_train, y_training=y_train
                 )
+                learner_list.append(learner)
 
-                # Remove queried instance from pool
-                X_pool = np.delete(X_pool, query_idx, axis=0)
-                y_pool = np.delete(y_pool, query_idx)
-
-            # Calculate performance after query and add to performance history
-            performance_history.append(committee.score(iris['data'], iris['target']))
+            # assembling the committee
+            committee = Committee(learner_list=learner_list)
             
-        query_members_performance_history.append(performance_history)
-    
-    method_performances.append(query_members_performance_history)
+            # Calculating the mean accuracy of the committee so far
+            unqueried_score = committee.score(iris['data'], iris['target'])
 
-# Plot our performance over time. ########## FIX TO LOOK LIKE EXAMPLE REPORT ###########
-fig, ax = plt.subplots(figsize=(8.5, 6), dpi=130)
+            # Create a list to store committee accuracy/performance over time
+            performance_history = [unqueried_score]
 
-ax.plot(performance_history)
-ax.scatter(range(len(performance_history)), performance_history, s=13)
+            # Query by committee 
+            n_queries = 25 # Number of queries in total (so we end up using 127/150 data points)
+            for idx in range(n_queries):
+                for n in range(5): # Query 5 data points at a time
+                    # Calculate the predictions of the committee members
+                    predictions = committee.predict_proba(X_pool)
 
-ax.xaxis.set_major_locator(mpl.ticker.MaxNLocator(nbins=5, integer=True))
-ax.yaxis.set_major_locator(mpl.ticker.MaxNLocator(nbins=10))
-ax.yaxis.set_major_formatter(mpl.ticker.PercentFormatter(xmax=1))
+                    if i == 0:
+                        query_idx = vote_entropy(predictions)
+                    elif i == 1:
+                        query_idx = KLD(predictions)
+                    elif i == 2:
+                        query_idx = consensus_disagreement(predictions)
+                    else:
+                        query_idx = baseline(X_pool)
 
-ax.set_ylim(bottom=0, top=1)
-ax.grid(True)
+                    #query_idx, query_instance = committee.query(X_pool) 
+                    committee.teach(
+                        X=X_pool[query_idx].reshape(1, -1),
+                        y=y_pool[query_idx].reshape(1, )
+                    )
 
-ax.set_title('Incremental classification accuracy')
-ax.set_xlabel('Query iteration')
-ax.set_ylabel('Classification Accuracy')
+                    # Remove queried instance from pool
+                    X_pool = np.delete(X_pool, query_idx, axis=0)
+                    y_pool = np.delete(y_pool, query_idx)
 
-plt.show()
+                # Calculate performance after query and add to performance history
+                performance_history.append(committee.score(iris['data'], iris['target']))
+                
+            member_acc_across_methods.append(performance_history)
+        
+        if n == 5:
+            members5_acc.append(member_acc_across_methods)
+        elif n == 10:
+            members10_acc.append(member_acc_across_methods)
+        else:
+            members15_acc.append(member_acc_across_methods)
 
 
-## plot
-plt.plot(range(len(method_performances[0][0])), method_performances[0][0], label = "Vote entropy 5 members" , color = "red")
-plt.plot(range(len(method_performances[0][1])), method_performances[0][1], label = "Vote entropy 10 members" , color = "blue")
-plt.plot(range(len(method_performances[0][2])), method_performances[0][2], label = "Vote entropy 15 members" , color = "green")
-plt.legend()
-plt.show()
+
+
+
+### Plot our performance over time. 
