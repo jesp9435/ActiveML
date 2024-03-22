@@ -11,6 +11,10 @@ import pickle
 
 np.random.seed(32) 
 
+#####################################################################
+#              Husk at ændre din directory i bunden
+#####################################################################
+
 
 # def 1
 def vote_entropy(predictions):
@@ -84,7 +88,6 @@ for repetition in range(10):
 
             # Loop over members of the committee
             for member_idx in range(n_members):
-                print("Member:", member_idx+1, "/", n_members)
                 # initial training data
                 n_initial = 2 # number of random data points for inital training
                 train_idx = np.random.choice(range(X_pool.shape[0]), size=n_initial, replace=False)
@@ -114,7 +117,7 @@ for repetition in range(10):
             # Query by committee 
             n_queries = 20 # Number of queries in total (so we end up using 120/150 data points)
             for idx in range(n_queries):
-                print("idx:", idx+1, "/20")
+                print("Query:", idx+1, "/20")
                 for _ in range(5): # Query 5 data points at a time
                     # Calculate the predictions of the committee members
                     predictions = committee.predict_proba(X_pool)

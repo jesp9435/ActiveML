@@ -55,6 +55,10 @@ for i in range(3):# loop over number of committee sizes (5, 10, 15)
     plt.show()
 
 
+###############################################################
+# change this below
+
+
 ### plot the best performing against eachother (only for us)
 plt.figure(figsize=(10, 6))
 # Best of 5 members
