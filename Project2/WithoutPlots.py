@@ -66,7 +66,7 @@ members15_acc = []
 
 # repeat the whole experiment 10 times to achieve confidence intervals
 for repetition in range(10): 
-    print("Repetition:", repetition+1, "/5")
+    print("Repetition:", repetition+1, "/10")
     # loop through the number of committee members
     for n in [5, 10, 15]:
         print("Number of members:", n)
@@ -158,5 +158,5 @@ for repetition in range(10):
 
 total_acc = [members5_acc, members10_acc, members15_acc]
 
-with open('/path/to/your/directory/total_acc.pkl', 'wb') as f:
+with open('/Users/jesperberglund/Downloads/total_acc.pkl', 'wb') as f:
     pickle.dump(total_acc, f) 
