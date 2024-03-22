@@ -157,16 +157,3 @@ total_acc = [members5_acc, members10_acc, members15_acc]
 
 with open('/path/to/your/directory/total_acc.pkl', 'wb') as f:
     pickle.dump(total_acc, f) 
-
-
-
-
-
-
-
-
-
-
-
-
-
