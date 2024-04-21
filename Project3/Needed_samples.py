@@ -2,9 +2,11 @@ import pandas as pd
 import numpy as np
 import scipy.stats
 import os
-from Examination import data1
 
-data = data1
+os.chdir("C:/Users/cheli/Downloads")
+
+data = pd.read_csv("data_1200.csv")
+del data[data.columns[0]]
 
 # Examinating how many samples are nessesary 
 # Function for calculating 95% confidence interval
