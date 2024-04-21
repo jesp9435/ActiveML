@@ -10,10 +10,11 @@ del data1[data1.columns[0]]
 data2 = pd.read_csv("/Users/jesperberglund/Downloads/data_1308.csv")
 del data2[data2.columns[0]]
 
-data = data2
+data = data1
 
 # plot all variables against eachother
-sns.pairplot(data, plot_kws={"s": 5})
+sns.pairplot(data1, plot_kws={"s": 5})
+sns.pairplot(data2, plot_kws={"s": 5})
 plt.show()
 
 
