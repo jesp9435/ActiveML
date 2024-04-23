@@ -176,15 +176,17 @@ plt.show()
 # We want to sample with the conditioning on F being the highest value:
 print(min(data["F"])) # 4.9873 
 
-#### After data2:
+# After every other sample:
 # We want to examine which variables changed distribution
-for variable in data1:
+for variable in data:
     plt.boxplot(data1[variable], positions=[1], labels = [variable + "1"])
-    plt.boxplot(data2[variable], positions=[2], labels = [variable + "2"])
+    plt.boxplot(data[variable], positions=[2], labels = [variable + "2"])
     plt.scatter(np.ones_like(data1[variable]), data1[variable], color='blue', marker='o', alpha=0.5)
-    plt.scatter(2 * np.ones_like(data2[variable]), data2[variable], color='red', marker='x', alpha=0.5)
+    plt.scatter(2 * np.ones_like(data[variable]), data[variable], color='red', marker='x', alpha=0.5)
     plt.ylabel("Values")  
     plt.show()
+    
+#### After data2/F:
 # A clearly changed a lot
 # B changed a bit
 # C did not change whatsoever
@@ -197,15 +199,8 @@ for variable in data1:
 
 
 
-#### After data3:
-# We want to examine which variables changed distribution
-for variable in data1:
-    plt.boxplot(data1[variable], positions=[1], labels = [variable + "1"])
-    plt.boxplot(data3[variable], positions=[2], labels = [variable + "2"])
-    plt.scatter(np.ones_like(data1[variable]), data1[variable], color='blue', marker='o', alpha=0.5)
-    plt.scatter(2 * np.ones_like(data3[variable]), data3[variable], color='red', marker='x', alpha=0.5)
-    plt.ylabel("Values")  
-    plt.show()
+
+#### After data3/E:
 # A changed a lot
 # B changed 
 # C did not change whatsoever
@@ -220,15 +215,7 @@ print(max(data1["C"])) #  3.568
 
 
 
-#### After data4:
-# We want to examine which variables changed distribution
-for variable in data:
-    plt.boxplot(data1[variable], positions=[1], labels = [variable + "1"])
-    plt.boxplot(data4[variable], positions=[2], labels = [variable + "2"])
-    plt.scatter(np.ones_like(data1[variable]), data1[variable], color='blue', marker='o', alpha=0.5)
-    plt.scatter(2 * np.ones_like(data4[variable]), data4[variable], color='red', marker='x', alpha=0.5)
-    plt.ylabel("Values")  
-    plt.show()
+#### After data4/C:
 # A did not change a lot
 # B changed a tiny bit
 # D did not change whatsoever
@@ -244,15 +231,7 @@ print(max(data1["B"])) #  4.257
 
 
 
-#### After data5:
-# We want to examine which variables changed distribution
-for variable in data:
-    plt.boxplot(data1[variable], positions=[1], labels = [variable + "1"])
-    plt.boxplot(data5[variable], positions=[2], labels = [variable + "2"])
-    plt.scatter(np.ones_like(data1[variable]), data1[variable], color='blue', marker='o', alpha=0.5)
-    plt.scatter(2 * np.ones_like(data5[variable]), data5[variable], color='red', marker='x', alpha=0.5)
-    plt.ylabel("Values")  
-    plt.show()
+#### After data5/B:
 # A is not really changed
 # C is changed a bit
 # D is changed a tiny bit
@@ -261,19 +240,9 @@ for variable in data:
 
 
 
-
-
-#### After data6:
-# We want to examine which variables changed distribution
-for variable in data:
-    plt.boxplot(data1[variable], positions=[1], labels = [variable + "1"])
-    plt.boxplot(data6[variable], positions=[2], labels = [variable + "2"])
-    plt.scatter(np.ones_like(data1[variable]), data1[variable], color='blue', marker='o', alpha=0.5)
-    plt.scatter(2 * np.ones_like(data6[variable]), data6[variable], color='red', marker='x', alpha=0.5)
-    plt.ylabel("Values")  
-    plt.show()
-# A 
-# C 
-# D 
-# E 
-# F 
+#### After data6/D:
+# A changed a bit
+# C did not change a lot
+# C didn't change
+# E didn't change
+# F did not change a lot
