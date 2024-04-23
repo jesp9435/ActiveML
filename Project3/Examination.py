@@ -80,13 +80,14 @@ for row in corrM:
 # and for plotting if wanted
 """
 def MI(x,y,Nbins=21, plot = False):
-    bins = np.linspace(np.min(x),np.max(x),Nbins)
+    binsx = np.linspace(np.min(x),np.max(x),Nbins)
+    binsy = np.linspace(np.min(y),np.max(y),Nbins)
     eps=np.spacing(1)
-    x_marginal = np.histogram(x,bins=bins)[0]
+    x_marginal = np.histogram(x,bins=binsx)[0]
     x_marginal = x_marginal/x_marginal.sum()
-    y_marginal = np.array(np.histogram(y,bins=bins)[0])
+    y_marginal = np.array(np.histogram(y,bins=binsy)[0])
     y_marginal = y_marginal/y_marginal.sum()
-    xy_joint = np.array(np.histogram2d(x,y,bins=(bins,bins))[0])
+    xy_joint = np.array(np.histogram2d(x,y,bins=(binsx,binsy))[0])
     xy_joint = xy_joint/xy_joint.sum()
     MI=np.sum(xy_joint*np.log(xy_joint/(x_marginal[:,None]*y_marginal[None,:]+eps)+eps))
     if plot:
@@ -139,6 +140,7 @@ def MI(x, y, bandwidth=0.1, plot=False):
     return MI
 
 # create list for storing all MI values
+data = data2
 datapoints = []
 # Calculate all MI values for all pairs of variables
 for row in data:
