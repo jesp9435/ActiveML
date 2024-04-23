@@ -12,42 +12,52 @@ os.chdir("C:/Users/cheli/Downloads")
 
 data1 = pd.read_csv("data_1200.csv")
 del data1[data1.columns[0]]
-
 data2 = pd.read_csv("data_1308.csv") # F = 2
 del data2[data2.columns[0]]
-
 data3 = pd.read_csv("data_1309.csv") # E = -2
 del data3[data3.columns[0]]
-
 data4 = pd.read_csv("data_1311.csv") # C = -2
 del data4[data4.columns[0]]
-
 data5 = pd.read_csv("data_1312.csv") # B = 0
 del data5[data5.columns[0]]
-
 data6 = pd.read_csv("data_1361.csv") # D = -2
 del data6[data6.columns[0]]
+data7 = pd.read_csv("data_1421.csv") # A = 0
+del data7[data7.columns[0]]
+data8 = pd.read_csv("data_1422.csv") # C = 0 and 50 data points
+del data8[data8.columns[0]]
+
 
 # Choose the data to investigate
-data = data6
+data = data8
 
 ###################################################
 ## plot all variables against eachother ##
 sns.pairplot(data, plot_kws={"s": 5})
 plt.show()
 
-# Data1: The relationship between A & F seems quite linear
-#        aka with a clear correlation. Furthermore E & F 
-#        seems to have a parabolic relationship, and D & E 
-#        creates an "H" shape and lastly C & E seems to 
-#        create a square.
+# Data1:   The relationship between A & F seems quite linear
+#          aka with a clear correlation. Furthermore E & F 
+#          seems to have a parabolic relationship, and D & E 
+#          creates an "H" shape and lastly C & E seems to 
+#          create a square.
 # Data2/F: D is almost constant at 0 when we intervene with F=0
+#          The histograms for A and B changed.
 # Data3/E: No clear relationships
+#          Histograms did not change.
 # Data4/C: No clear relationships ish
+#          Histograms for A, B, D and F changed.
 # Data5/B: Once more D & E creates an "H" shape and E & F 
-#        seems to have a parabolic relationship. Furthermore 
-#        C and D seems to perhaps be correlated 
+#          seems to have a parabolic relationship. Furthermore 
+#          C and D seems to perhaps be correlated 
+#          Histogram for F changed a bit.
 # Data6/D: The C & E square is gone 
+#          Histograms for E and F changed a bit.
+# Data7/A: The C & E square is gone 
+#          Histogram for F changed
+# Data8/C2:Nothing changed...
+
+
 
 
 ###################################################
@@ -70,7 +80,9 @@ for row in corrM:
 # Data5/B: none
 # Data6/D: var A and var F has corr: -0.6580983545598529
 #          var B and var C has corr: 0.6450769014297322
-#          var B and var F has corr: 0.5375220107260147
+#          var B and var F has corr: 0.5375220107260147 
+# Data7/A: var D and var E has corr: -0.5361825807946552      
+# Data8/C: none
 
 
 ###################################################
@@ -140,7 +152,6 @@ def MI(x, y, bandwidth=0.1, plot=False):
     return MI
 
 # create list for storing all MI values
-data = data2
 datapoints = []
 # Calculate all MI values for all pairs of variables
 for row in data:
@@ -157,18 +168,14 @@ plt.ylabel("MI values")
 plt.show() 
 # Data1:   Positive outlier = B & D
 # Data2/F: Outlier = D & F
-# Data3/E: Outliers = C & E and D & E
-# Data4/C: Outlier = C & F
+# Data3/E: Outliers = C & E and D & E   
+# Data4/C: Outlier = C & F 
 # Data5/B: Outliers = B & D and B & E
 # Data6/D: Positive outliers = D & E and D & F
 #          Negative outliers = B & D and B & E and C & F
+# Data7/A: Positive outlier = D & F
+# Data8/C2:None
 
-
-###################################################
-# plotting wobly wobly 3d kind plot shit
-#plt.figure()
-#sns.jointplot(data={'B':data["A"],'A':data["B"]},x='B',y='A', kind='kde') 
-#plt.show()
 
 
 ###################################################
@@ -239,12 +246,37 @@ print(max(data1["B"])) #  4.257
 # D is changed a tiny bit
 # E is not really changed
 # F is changed a tiny bit 
+print(min(data1["D"])) # -1.9571239854278204
+print(max(data1["D"])) #  1.619418927458252
+# So we use D=-2
 
 
 
 #### After data6/D:
 # A changed a bit
-# C did not change a lot
+# B did not change a lot
 # C didn't change
 # E didn't change
 # F did not change a lot
+print(min(data1["A"])) # -4.00
+print(max(data1["A"])) #  5.55
+# So we use A=0
+
+
+
+#### After data7/A:
+# B didn't change
+# C did not change a lot
+# D didn't change
+# E didn't change
+# F changed a tiny bit
+
+# Now we try C=0
+
+
+
+#### After data8/C2:
+# Nothing changed
+# C is a leaf
+
+# Now we try ...
