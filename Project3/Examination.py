@@ -26,14 +26,16 @@ data7 = pd.read_csv("data_1421.csv") # A = 0
 del data7[data7.columns[0]]
 data8 = pd.read_csv("data_1422.csv") # C = 0 and 50 data points
 del data8[data8.columns[0]]
+data9 = pd.read_csv("data_1450.csv") # E = 0 and 50 data points
+del data9[data9.columns[0]]
 
 
 # Choose the data to investigate
-data = data8
+data = data9
 
 ###################################################
 ## plot all variables against eachother ##
-sns.pairplot(data, plot_kws={"s": 5})
+sns.pairplot(data3, plot_kws={"s": 5})
 plt.show()
 
 # Data1:   The relationship between A & F seems quite linear
@@ -42,8 +44,8 @@ plt.show()
 #          creates an "H" shape and lastly C & E seems to 
 #          create a square.
 # Data2/F: D is almost constant at 0 when we intervene with F=0
-#          The histograms for A and B changed.
-# Data3/E: No clear relationships
+#          The histograms for A and B changed. 
+# Data3/E: No clear relationships 
 #          Histograms did not change.
 # Data4/C: No clear relationships ish
 #          Histograms for A, B, D and F changed.
@@ -56,6 +58,7 @@ plt.show()
 # Data7/A: The C & E square is gone 
 #          Histogram for F changed
 # Data8/C2:Nothing changed...
+# Data9/E2:Nothings changed...
 
 
 
@@ -83,6 +86,7 @@ for row in corrM:
 #          var B and var F has corr: 0.5375220107260147 
 # Data7/A: var D and var E has corr: -0.5361825807946552      
 # Data8/C: none
+# Data9/E: var A and var F has corr: -0.5942921880362798
 
 
 ###################################################
@@ -90,31 +94,6 @@ for row in corrM:
 
 # Function for calculating mutual information
 # and for plotting if wanted
-"""
-def MI(x,y,Nbins=21, plot = False):
-    binsx = np.linspace(np.min(x),np.max(x),Nbins)
-    binsy = np.linspace(np.min(y),np.max(y),Nbins)
-    eps=np.spacing(1)
-    x_marginal = np.histogram(x,bins=binsx)[0]
-    x_marginal = x_marginal/x_marginal.sum()
-    y_marginal = np.array(np.histogram(y,bins=binsy)[0])
-    y_marginal = y_marginal/y_marginal.sum()
-    xy_joint = np.array(np.histogram2d(x,y,bins=(binsx,binsy))[0])
-    xy_joint = xy_joint/xy_joint.sum()
-    MI=np.sum(xy_joint*np.log(xy_joint/(x_marginal[:,None]*y_marginal[None,:]+eps)+eps))
-    if plot:
-        plt.figure()
-        plt.subplot(1,2,1)
-        plt.imshow(xy_joint.T,origin='lower')
-        plt.title('joint')
-        plt.subplot(1,2,2)
-        plt.imshow((x_marginal[:,None]*y_marginal[None,:]).T,origin='lower')
-        plt.title('product of marginals')
-        plt.suptitle('Mutual information: %f'%MI)
-        plt.show()
-    return(MI)
-"""
-
 def MI(x, y, bandwidth=0.1, plot=False):
     # Convert x and y to np arrays
     x = np.array(x)
@@ -175,6 +154,7 @@ plt.show()
 #          Negative outliers = B & D and B & E and C & F
 # Data7/A: Positive outlier = D & F
 # Data8/C2:None
+# Data9/E2:Positive outlier = D & E
 
 
 
@@ -232,7 +212,7 @@ print(max(data1["C"])) #  3.568
 # F changed a tiny bit
 
 # We now want to sample B (because we don't know a lot about it)
-# and want to try and use an extreme value. 
+# so let's examine the range: 
 print(min(data1["B"])) # -4.522
 print(max(data1["B"])) #  4.257
 # So we use B=0
@@ -279,4 +259,9 @@ print(max(data1["A"])) #  5.55
 # Nothing changed
 # C is a leaf
 
-# Now we try ...
+# Now we try E=0 because we're quite unsure of where it belongs in the graph.
+
+
+#### After data9/E2:
+# D changed dramatically as the only one
+# E must point to D and nothing else
