@@ -86,7 +86,7 @@ for row in corrM:
 #          var B and var F has corr: 0.5375220107260147 
 # Data7/A: var D and var E has corr: -0.5361825807946552      
 # Data8/C: none
-# Data9/E: var A and var F has corr: -0.5942921880362798
+# Data9/E: var A and var F has corr: -0.5942921880362798 
 
 
 ###################################################
