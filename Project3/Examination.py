@@ -89,7 +89,7 @@ for row in corrM:
 # Data9/E: var A and var F has corr: -0.5942921880362798 
 
 
-###################################################
+################################################### 
 ## Mutual information ##
 
 # Function for calculating mutual information
